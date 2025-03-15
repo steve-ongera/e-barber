@@ -12,27 +12,46 @@ class Barber(models.Model):
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
 
+from django.db import models
+from django.utils.text import slugify
+
 class ServiceCategory(models.Model):
     name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=120, blank=True)
     description = models.TextField(blank=True)
-    
+
+    def save(self, *args, **kwargs):
+        if not self.slug:  # Generate slug only if it's empty
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name_plural = "Service Categories"
 
+
 class Service(models.Model):
     name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=120, blank=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=6, decimal_places=2)
     duration = models.PositiveIntegerField(help_text="Duration in minutes")
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name="services")
     image = models.ImageField(upload_to='services/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    
+
+    def save(self, *args, **kwargs):
+        if not self.slug:  # Generate slug only if it's empty
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.name} (ksh{self.price})"
+
+    class Meta:
+        verbose_name_plural = "Services"
 
 class BusinessHours(models.Model):
     DAYS_OF_WEEK = [

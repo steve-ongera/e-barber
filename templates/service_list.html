@@ -35,7 +35,7 @@
                                                 <p class="card-text mb-0"><strong>ksh{{ service.price }}</strong></p>
                                                 <p class="card-text mb-0 text-muted"><i class="far fa-clock me-1"></i>{{ service.duration }} min</p>
                                             </div>
-                                            <a href="{% url 'service_detail' service.id %}" class="btn btn-sm btn-outline-primary mt-3">View Details</a>
+                                            <a href="{% url 'service_detail'  slug=service.slug %}" class="btn btn-sm btn-outline-primary mt-3">View Details</a>
                                         </div>
                                     </div>
                                 </div>

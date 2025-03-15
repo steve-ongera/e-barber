@@ -74,9 +74,9 @@ def service_list(request):
     categories = ServiceCategory.objects.all()
     return render(request, 'service_list.html', {'categories': categories})
 
-def service_detail(request, service_id):
+def service_detail(request, slug):
     """View details of a specific service"""
-    service = get_object_or_404(Service, id=service_id)
+    service = get_object_or_404(Service, slug=slug)
     return render(request, 'service_detail.html', {'service': service})
 
 @login_required
