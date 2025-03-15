@@ -6,7 +6,7 @@
 {% block extra_css %}
 <style>
     .hero {
-        background-image: url('{% static "images/barber-hero.jpg" %}');
+        background-image: url('{% static "images/banner-2.avif" %}');
         background-size: cover;
         background-position: center;
         color: white;
@@ -59,7 +59,7 @@
                         <p class="card-text">{{ category.description|truncatewords:20 }}</p>
                         {% with category.services.all|dictsort:"price" as sorted_services %}
                             <p class="text-muted">
-                                Starting from ${{ sorted_services.0.price }}
+                                Starting from ksh{{ sorted_services.0.price }}
                             </p>
                         {% endwith %}
 

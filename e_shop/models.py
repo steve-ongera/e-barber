@@ -32,7 +32,7 @@ class Service(models.Model):
     is_active = models.BooleanField(default=True)
     
     def __str__(self):
-        return f"{self.name} (${self.price})"
+        return f"{self.name} (ksh{self.price})"
 
 class BusinessHours(models.Model):
     DAYS_OF_WEEK = [
