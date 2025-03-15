@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book an Appointment - Barber Shop{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .time-slot {
+        padding: 10px;
+        margin: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .time-slot:hover {
+        background-color: #f8f9fa;
+    }
+    .time-slot.selected {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-5">Book an Appointment</h1>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="appointment-form">
+                        {% csrf_token %}
+                        
+                        <!-- Step 1: Select Service -->
+                        <div class="step" id="step-1">
+                            <h3 class="mb-4">Select Service</h3>
+                            <div class="row">
+                                {% for category in categories %}
+                                    <div class="col-12 mb-3">
+                                        <h5>{{ category.name }}</h5>
+                                        <div class="row">
+                                            {% for service in category.services.all %}
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card service-card h-100">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="radio" name="service" id="service-{{ service.id }}" value="{{ service.id }}">
+                                                                <label class="form-check-label" for="service-{{ service.id }}">
+                                                                    <h6 class="mb-0">{{ service.name }}</h6>
+                                                                </label>
+                                                            </div>
+                                                            <p class="small text-muted mt-2">{{ service.description|truncatewords:10 }}</p>
+                                                            <div class="d-flex justify-content-between">
+                                                                <span>${{ service.price }}</span>
+                                                                <span><i class="far fa-clock me-1"></i>{{ service.duration }} min</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-end mt-3">
+                                <button type="button" class="btn btn-primary next-step">Continue</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Select Barber -->
+                        <div class="step" id="step-2" style="display: none;">
+                            <h3 class="mb-4">Select Barber</h3>
+                            <div class="row">
+                                {% for barber in barbers %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card barber-card h-100">
+                                            <div class="card-body">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="barber" id="barber-{{ barber.id }}" value="{{ barber.id }}">
+                                                    <label class="form-check-label" for="barber-{{ barber.id }}">
+                                                        <h6 class="mb-0">{{ barber }}</h6>
+                                                    </label>
+                                                </div>
+                                                <p class="small text-muted mt-2">{{ barber.years_of_experience }} years of experience</p>
+                                                <p class="small">{{ barber.bio|truncatewords:15 }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button type="button" class="btn btn-secondary prev-step">Back</button>
+                                <button type="button" class="btn btn-primary next-step">Continue</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Select Date and Time -->
+                        <div class="step" id="step-3" style="display: none;">
+                            <h3 class="mb-4">Select Date and Time</h3>
+                            
+                            <div class="mb-3">
+                                <label for="date" class="form-label">Select Date</label>
+                                <input type="text" class="form-control" id="date" name="date" placeholder="Select a date">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Select Time</label>
+                                <div id="time-slots" class="d-flex flex-wrap">
+                                    <p class="text-muted">Please select a date first</p>
+                                </div>
+                                <input type="hidden" name="start_time" id="start_time">
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-3">
+                                <button type="button" class="btn btn-secondary prev-step">Back</button>
+                                <button type="button" class="btn btn-primary next-step">Continue</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4: Review and Submit -->
+                        <div class="step" id="step-4" style="display: none;">
+                            <h3 class="mb-4">Review and Submit</h3>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Appointment Details</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Service:</span>
+                                            <span id="summary-service"></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Barber:</span>
+                                            <span id="summary-barber"></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Date:</span>
+                                            <span id="summary-date"></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Time:</span>
+                                            <span id="summary-time"></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Price:</span>
+                                            <span id="summary-price"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Additional Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any special requests or notes for your appointment?"></textarea>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-3">
+                                <button type="button" class="btn btn-secondary prev-step">Back</button>
+                                <button type="submit" class="btn btn-success">Confirm Booking</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize date picker
+        flatpickr("#date", {
+            minDate: "today",
+            maxDate: new Date().fp_incr(30), // Allow booking up to 30 days in advance
+            disable: [
+                function(date) {
+                    // Disable Sundays
+                    return date.getDay() === 0;
+                }
+            ],
+            onChange: function(selectedDates, dateStr, instance) {
+                // When date is selected, fetch available time slots
+                if (selectedDates.length > 0) {
+                    const selectedDate = dateStr;
+                    const selectedService = document.querySelector('input[name="service"]:checked').value;
+                    const selectedBarber = document.querySelector('input[name="barber"]:checked').value;
+                    
+                    fetchAvailableTimeSlots(selectedDate, selectedBarber, selectedService);
+                }
+            }
+        });
+        
+        // Navigation between steps
+        const steps = document.querySelectorAll('.step');
+        const nextButtons = document.querySelectorAll('.next-step');
+        const prevButtons = document.querySelectorAll('.prev-step');
+        
+        nextButtons.forEach((button, index) => {
+            button.addEventListener('click', function() {
+                // Validate current step
+                if (validateStep(index + 1)) {
+                    steps[index].style.display = 'none';
+                    steps[index + 1].style.display = 'block';
+                    
+                    // If moving to the final review step, update summary
+                    if (index + 2 === steps.length) {
+                        updateSummary();
+                    }
+                }
+            });
+        });
+        
+        prevButtons.forEach((button, index) => {
+            button.addEventListener('click', function() {
+                steps[index + 1].style.display = 'none';
+                steps[index].style.display = 'block';
+            });
+        });
+        
+        // Validate steps
+        function validateStep(stepNum) {
+            switch(stepNum) {
+                case 1:
+                    const serviceSelected = document.querySelector('input[name="service"]:checked');
+                    if (!serviceSelected) {
+                        alert('Please select a service');
+                        return false;
+                    }
+                    return true;
+                case 2:
+                    const barberSelected = document.querySelector('input[name="barber"]:checked');
+                    if (!barberSelected) {
+                        alert('Please select a barber');
+                        return false;
+                    }
+                    return true;
+                case 3:
+                    const dateSelected = document.getElementById('date').value;
+                    const timeSelected = document.getElementById('start_time').value;
+                    if (!dateSelected) {
+                        alert('Please select a date');
+                        return false;
+                    }
+                    if (!timeSelected) {
+                        alert('Please select a time slot');
+                        return false;
+                    }
+                    return true;
+                default:
+                    return true;
+            }
+        }
+        
+        // Fetch available time slots from server
+        function fetchAvailableTimeSlots(date, barberId, serviceId) {
+            const timeSlotsContainer = document.getElementById('time-slots');
+            timeSlotsContainer.innerHTML = '<p class="text-center w-100">Loading available time slots...</p>';
+            
+            fetch(`/api/available-slots/?date=${date}&barber_id=${barberId}&service_id=${serviceId}`)
+                .then(response => response.json())
+                .then(data => {
+                    timeSlotsContainer.innerHTML = '';
+                    
+                    if (data.available_slots && data.available_slots.length > 0) {
+                        data.available_slots.forEach(slot => {
+                            const timeSlot = document.createElement('div');
+                            timeSlot.className = 'time-slot';
+                            timeSlot.textContent = slot;
+                            timeSlot.addEventListener('click', function() {
+                                // Remove selected class from all slots
+                                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                                // Add selected class to clicked slot
+                                this.classList.add('selected');
+                                // Update hidden input with selected time
+                                document.getElementById('start_time').value = slot;
+                            });
+                            timeSlotsContainer.appendChild(timeSlot);
+                        });
+                    } else {
+                        timeSlotsContainer.innerHTML = '<p class="text-center w-100">No available time slots for this date. Please select another date.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching time slots:', error);
+                    timeSlotsContainer.innerHTML = '<p class="text-center w-100 text-danger">Error loading time slots. Please try again.</p>';
+                });
+        }
+        
+        // Update appointment summary
+        function updateSummary() {
+            const selectedService = document.querySelector('input[name="service"]:checked');
+            const selectedBarber = document.querySelector('input[name="barber"]:checked');
+            const selectedDate = document.getElementById('date').value;
+            const selectedTime = document.getElementById('start_time').value;
+            
+            // Get service name and price
+            const serviceName = selectedService.closest('.card').querySelector('h6').textContent;
+            const servicePrice = selectedService.closest('.card').querySelector('.d-flex span:first-child').textContent;
+            
+            // Get barber name
+            const barberName = selectedBarber.closest('.card').querySelector('h6').textContent;
+            
+            // Update summary
+            document.getElementById('summary-service').textContent = serviceName;
+            document.getElementById('summary-barber').textContent = barberName;
+            document.getElementById('summary-date').textContent = selectedDate;
+            document.getElementById('summary-time').textContent = selectedTime;
+            document.getElementById('summary-price').textContent = servicePrice;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Appointments - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-5">My Appointments</h1>
+    
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="d-flex justify-content-between mb-4">
+                <h3>Upcoming Appointments</h3>
+                <a href="{% url 'book_appointment' %}" class="btn btn-primary">Book New Appointment</a>
+            </div>
+            
+            <div class="card mb-5">
+                <div class="card-body">
+                    {% if appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Service</th>
+                                        <th>Barber</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in appointments %}
+                                        {% if appointment.status == 'scheduled' %}
+                                            <tr>
+                                                <td>{{ appointment.date }}</td>
+                                                <td>{{ appointment.start_time }}</td>
+                                                <td>{{ appointment.service.name }}</td>
+                                                <td>{{ appointment.barber }}</td>
+                                                <td>
+                                                    <span class="badge bg-primary">{{ appointment.get_status_display }}</span>
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center">You don't have any upcoming appointments.</p>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'book_appointment' %}" class="btn btn-primary">Book an Appointment</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <h3 class="mb-4">Past Appointments</h3>
+            <div class="card">
+                <div class="card-body">
+                    {% if appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Service</th>
+                                        <th>Barber</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in appointments %}
+                                        {% if appointment.status != 'scheduled' %}
+                                            <tr>
+                                                <td>{{ appointment.date }}</td>
+                                                <td>{{ appointment.start_time }}</td>
+                                                <td>{{ appointment.service.name }}</td>
+                                                <td>{{ appointment.barber }}</td>
+                                                <td>
+                                                    {% if appointment.status == 'completed' %}
+                                                        <span class="badge bg-success">{{ appointment.get_status_display }}</span>
+                                                    {% elif appointment.status == 'cancelled' %}
+                                                        <span class="badge bg-danger">{{ appointment.get_status_display }}</span>
+                                                    {% elif appointment.status == 'no_show' %}
+                                                        <span class="badge bg-warning">{{ appointment.get_status_display }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center">You don't have any past appointments.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

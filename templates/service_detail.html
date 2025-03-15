@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ service.name }} - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'service_list' %}">Services</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ service.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row mt-4">
+        <div class="col-md-5 mb-4">
+            {% if service.image %}
+                <img src="{{ service.image.url }}" class="img-fluid rounded" alt="{{ service.name }}">
+            {% else %}
+                <img src="{% static 'images/service-placeholder.jpg' %}" class="img-fluid rounded" alt="{{ service.name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <h1>{{ service.name }}</h1>
+            <p class="lead">{{ service.description }}</p>
+            
+            <div class="d-flex mb-4">
+                <div class="me-4">
+                    <h5>Price</h5>
+                    <p class="fs-4">KSH{{ service.price }}</p>
+                </div>
+                <div>
+                    <h5>Duration</h5>
+                    <p class="fs-4">{{ service.duration }} minutes</p>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h5>Category</h5>
+                <p>{{ service.category.name }}</p>
+            </div>
+            
+            <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg">Book This Service</a>
+        </div>
+    </div>
+    
+    <!-- Related Services -->
+    <div class="mt-5">
+        <h3>You Might Also Like</h3>
+        <div class="row mt-3">
+            {% for related_service in service.category.services.all %}
+                {% if related_service.id != service.id %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if related_service.image %}
+                                <img src="{{ related_service.image.url }}" class="card-img-top" alt="{{ related_service.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'images/service-placeholder.jpg' %}" class="card-img-top" alt="{{ related_service.name }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ related_service.name }}</h5>
+                                <p class="card-text">{{ related_service.description|truncatewords:15 }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <span>KSH{{ related_service.price }}</span>
+                                    <span class="text-muted">{{ related_service.duration }} min</span>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0">
+                                <a href="{% url 'service_detail' related_service.id %}" class="btn btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Barber Shop - Professional Haircuts & Styling{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        background-image: url('{% static "images/barber-hero.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+    }
+    .service-card {
+        transition: transform 0.3s;
+    }
+    .service-card:hover {
+        transform: translateY(-5px);
+    }
+    .barber-img {
+        height: 250px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero mb-5">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-8 col-lg-6">
+                <h1 class="display-4 fw-bold">Professional Haircuts & Styling</h1>
+                <p class="lead">Experience the art of barbering with our skilled professionals.</p>
+                <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg mt-3">Book Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Overview -->
+<section class="container mb-5">
+    <h2 class="text-center mb-4">Our Services</h2>
+    <div class="row">
+        {% for category in services|slice:":3" %}
+            <div class="col-md-4 mb-4">
+                <div class="card service-card h-100">
+                    {% if category.services.first.image %}
+                        <img src="{{ category.services.first.image.url }}" class="card-img-top" alt="{{ category.name }}">
+                    {% else %}
+                        <img src="{% static 'images/service-placeholder.jpg' %}" class="card-img-top" alt="{{ category.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text">{{ category.description|truncatewords:20 }}</p>
+                        {% with category.services.all|dictsort:"price" as sorted_services %}
+                            <p class="text-muted">
+                                Starting from ${{ sorted_services.0.price }}
+                            </p>
+                        {% endwith %}
+
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{% url 'service_list' %}" class="btn btn-outline-dark">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <p>No services available at the moment.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-3">
+        <a href="{% url 'service_list' %}" class="btn btn-outline-primary">View All Services</a>
+    </div>
+</section>
+
+<!-- Meet Our Barbers -->
+<section class="bg-light py-5 mb-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Meet Our Barbers</h2>
+        <div class="row">
+            {% for barber in barbers %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if barber.profile_picture %}
+                            <img src="{{ barber.profile_picture.url }}" class="card-img-top barber-img" alt="{{ barber }}">
+                        {% else %}
+                            <img src="{% static 'images/barber-placeholder.jpg' %}" class="card-img-top barber-img" alt="{{ barber }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ barber }}</h5>
+                            <p class="card-text">{{ barber.bio|truncatewords:30 }}</p>
+                            <p class="text-muted">{{ barber.years_of_experience }} years of experience</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center">
+                    <p>No barbers available at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="container text-center mb-5">
+    <div class="p-5 bg-dark text-white rounded">
+        <h2>Ready for a Fresh Look?</h2>
+        <p class="lead">Book your appointment today and experience our professional services.</p>
+        <a href="{% url 'book_appointment' %}" class="btn btn-light btn-lg mt-3">Book Appointment</a>
+    </div>
+</section>
+{% endblock %}
