@@ -94,40 +94,64 @@ from django.utils.timezone import now
 from datetime import datetime, timedelta
 from .models import Appointment, Service
 from .forms import AppointmentForm
-
+from datetime import datetime, timedelta, time
+from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
-
-from datetime import timedelta
 
 @login_required
 def book_appointment(request, slug):
     """Allow a logged-in user to book an appointment for a service."""
     service = get_object_or_404(Service, slug=slug)
+    
+    # Debug information
+    print(f"Service found: {service.id} - {service.name}")
 
     if request.method == "POST":
         form = AppointmentForm(request.POST)
+        
+        # Debug form data
+        print(f"POST data: {request.POST}")
+        
         if form.is_valid():
-            appointment = form.save(commit=False)
-            appointment.customer = request.user
-            appointment.service = service
-            appointment.amount = service.price  # Automatically set amount from service price
+            # Debug cleaned data
+            print(f"Form cleaned data: {form.cleaned_data}")
             
-            # Set end_time to be 1 hour after start_time
-            appointment.end_time = (datetime.combine(date.today(), appointment.start_time) + timedelta(hours=1)).time()
-
-            # Save appointment
-            appointment.save()
-            messages.success(request, f"Appointment for {service.name} booked successfully!")
-            return redirect('appointment_success')
+            try:
+                appointment = form.save(commit=False)
+                
+                # Explicitly check all required fields
+                if not form.cleaned_data.get('barber'):
+                    form.add_error('barber', 'Barber is required')
+                    raise ValidationError('Barber is required')
+                
+                appointment.customer = request.user
+                appointment.service = service
+                appointment.amount = service.price
+                
+                # Set end_time before saving
+                start_datetime = datetime.combine(appointment.date, appointment.start_time)
+                end_datetime = start_datetime + timedelta(hours=1)
+                appointment.end_time = end_datetime.time()
+                
+                # Debug the appointment object before saving
+                print(f"About to save appointment: Customer: {appointment.customer}, Service: {appointment.service}, Barber: {appointment.barber}")
+                
+                appointment.save()
+                messages.success(request, f"Appointment for {service.name} booked successfully!")
+                return redirect('appointment_success')
+            except Exception as e:
+                print(f"Exception occurred: {str(e)}")
+                form.add_error(None, f"Error saving appointment: {str(e)}")
+        else:
+            # Form validation failed
+            print(f"Form validation errors: {form.errors}")
     else:
         form = AppointmentForm(initial={
             'customer_name': request.user.get_full_name(),
             'customer_email': request.user.email,
-            'amount': service.price
         })
 
     return render(request, 'book_appointment.html', {'form': form, 'service': service})
-
 
 
 

@@ -111,35 +111,6 @@ class Appointment(models.Model):
     def __str__(self):
         return f"{self.customer_name} - {self.service.name} - {self.date} {self.start_time}"
 
-    def clean(self):
-        """Validates appointment timing and barber availability."""
-
-        # Ensure start_time and end_time are provided
-        if not self.start_time or not self.end_time:
-            raise ValidationError("Start time and end time are required.")
-
-        # Ensure start_time is before end_time
-        if self.start_time >= self.end_time:
-            raise ValidationError("End time must be after start time.")
-
-        # Check business hours (e.g., 8 AM to 8 PM)
-        opening_time = time(8, 0)
-        closing_time = time(20, 0)
-
-        if self.start_time < opening_time or self.end_time > closing_time:
-            raise ValidationError("Appointments must be within business hours (8 AM - 8 PM).")
-
-        # Check if the barber is already booked at this time
-        overlapping_appointments = Appointment.objects.filter(
-            barber=self.barber,
-            date=self.date,
-            start_time__lt=self.end_time,
-            end_time__gt=self.start_time,
-        ).exclude(id=self.id)  # Exclude current instance when updating
-
-        if overlapping_appointments.exists():
-            raise ValidationError("Barber is already booked for this time slot.")
-
 
     class Meta:
         ordering = ['date', 'start_time']
