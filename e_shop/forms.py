@@ -28,26 +28,24 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = ('phone_number', 'profile_picture')
 
+
 class AppointmentForm(forms.ModelForm):
-    date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        help_text="Select a date for your appointment"
-    )
-    start_time = forms.TimeField(
-        widget=forms.Select(choices=[]),
-        help_text="Select an available time slot"
-    )
-    
     class Meta:
         model = Appointment
-        fields = ('service', 'barber', 'date', 'start_time', 'notes')
+        fields = ['customer_name', 'customer_email', 'customer_address', 'date', 'start_time', 'barber', 'notes']
         widgets = {
-            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Any special requests or notes?'})
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'barber': forms.Select(attrs={'class': 'form-control'}),
+            'customer_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'customer_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'customer_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Time choices will be populated via JavaScript based on selected date and barber
+
+
 
 class ReviewForm(forms.ModelForm):
     class Meta:

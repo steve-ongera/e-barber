@@ -78,6 +78,12 @@ class BusinessHours(models.Model):
         verbose_name_plural = "Business Hours"
         ordering = ['day']
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from datetime import time
+from e_shop.models import Service, Barber
+
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('scheduled', 'Scheduled'),
@@ -91,22 +97,54 @@ class Appointment(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     date = models.DateField()
     start_time = models.TimeField()
-    end_time = models.TimeField()
+    end_time = models.TimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     created_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
-    
+
+    # New Fields
+    amount = models.DecimalField(max_digits=6, decimal_places=2, blank=True , null=True)  
+    customer_email = models.EmailField(blank=True , null=True)
+    customer_name = models.CharField(max_length=255 , blank=True , null=True)
+    customer_address = models.TextField(blank=True , null=True)
+
     def __str__(self):
-        return f"{self.customer.username} - {self.service.name} - {self.date} {self.start_time}"
-    
+        return f"{self.customer_name} - {self.service.name} - {self.date} {self.start_time}"
+
     def clean(self):
-        from django.core.exceptions import ValidationError
-        # Check if appointment is within business hours
-        # Check if barber is available during this time
-        # Implement these validations as needed
-        
+        """Validates appointment timing and barber availability."""
+
+        # Ensure start_time and end_time are provided
+        if not self.start_time or not self.end_time:
+            raise ValidationError("Start time and end time are required.")
+
+        # Ensure start_time is before end_time
+        if self.start_time >= self.end_time:
+            raise ValidationError("End time must be after start time.")
+
+        # Check business hours (e.g., 8 AM to 8 PM)
+        opening_time = time(8, 0)
+        closing_time = time(20, 0)
+
+        if self.start_time < opening_time or self.end_time > closing_time:
+            raise ValidationError("Appointments must be within business hours (8 AM - 8 PM).")
+
+        # Check if the barber is already booked at this time
+        overlapping_appointments = Appointment.objects.filter(
+            barber=self.barber,
+            date=self.date,
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time,
+        ).exclude(id=self.id)  # Exclude current instance when updating
+
+        if overlapping_appointments.exists():
+            raise ValidationError("Barber is already booked for this time slot.")
+
+
     class Meta:
         ordering = ['date', 'start_time']
+        unique_together = ('barber', 'date', 'start_time')
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

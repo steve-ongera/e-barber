@@ -41,7 +41,8 @@
                 <p>{{ service.category.name }}</p>
             </div>
             
-            <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg">Book This Service</a>
+            <a href="{% url 'book_appointment' service.slug %}" class="btn btn-primary btn-lg">Book This Service</a>
+
         </div>
     </div>
     

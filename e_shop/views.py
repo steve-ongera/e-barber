@@ -79,28 +79,59 @@ def service_detail(request, slug):
     service = get_object_or_404(Service, slug=slug)
     return render(request, 'service_detail.html', {'service': service})
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils.timezone import now
+from .models import Service, Appointment, Barber
+from .forms import AppointmentForm
+
+from datetime import timedelta, datetime
+
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.timezone import now
+from datetime import datetime, timedelta
+from .models import Appointment, Service
+from .forms import AppointmentForm
+
+from datetime import timedelta, datetime
+
+from datetime import timedelta
+
 @login_required
-def book_appointment(request):
-    """Book a new appointment"""
-    if request.method == 'POST':
+def book_appointment(request, slug):
+    """Allow a logged-in user to book an appointment for a service."""
+    service = get_object_or_404(Service, slug=slug)
+
+    if request.method == "POST":
         form = AppointmentForm(request.POST)
         if form.is_valid():
             appointment = form.save(commit=False)
             appointment.customer = request.user
+            appointment.service = service
+            appointment.amount = service.price  # Automatically set amount from service price
             
-            # Calculate end time based on service duration
-            service = appointment.service
-            start_datetime = datetime.combine(appointment.date, appointment.start_time)
-            end_datetime = start_datetime + timedelta(minutes=service.duration)
-            appointment.end_time = end_datetime.time()
-            
+            # Set end_time to be 1 hour after start_time
+            appointment.end_time = (datetime.combine(date.today(), appointment.start_time) + timedelta(hours=1)).time()
+
+            # Save appointment
             appointment.save()
-            messages.success(request, 'Appointment booked successfully!')
-            return redirect('appointment_detail', appointment_id=appointment.id)
+            messages.success(request, f"Appointment for {service.name} booked successfully!")
+            return redirect('appointment_success')
     else:
-        form = AppointmentForm()
-    
-    return render(request, 'book_appointment.html', {'form': form})
+        form = AppointmentForm(initial={
+            'customer_name': request.user.get_full_name(),
+            'customer_email': request.user.email,
+            'amount': service.price
+        })
+
+    return render(request, 'book_appointment.html', {'form': form, 'service': service})
+
+
+
+
+
 
 @login_required
 def appointment_detail(request, appointment_id):
