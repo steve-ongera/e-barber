@@ -44,30 +44,31 @@ def logout_view(request):
     messages.success(request, "Logged out successfully!")
     return redirect('login')
 
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib import messages
+from .forms import UserRegistrationForm
 
 def signup(request):
-    """User registration view"""
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        profile_form = UserProfileForm(request.POST, request.FILES)
-        
-        if form.is_valid() and profile_form.is_valid():
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
             user = form.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
-            
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
             login(request, user)
-            messages.success(request, f'Account created for {username}!')
-            return redirect('home')
+            messages.success(request, "Registration successful!")
+            return redirect('home')  # Redirect to your home page
+        else:
+            # Add form errors as messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
-        form = UserCreationForm()
-        profile_form = UserProfileForm()
+        form = UserRegistrationForm()
     
-    return render(request, 'registration/signup.html', {'form': form, 'profile_form': profile_form})
+    return render(request,  'registration/signup.html', {"form": form})
+
+
 
 def service_list(request):
     """View all services offered by the barber shop"""

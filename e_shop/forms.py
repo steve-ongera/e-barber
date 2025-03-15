@@ -1,28 +1,63 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from .models import Appointment, UserProfile, Review
 from datetime import datetime, date, timedelta
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 
-class ExtendedUserCreationForm(UserCreationForm):
+
+class UserRegistrationForm(forms.ModelForm):
+    """Custom registration form that allows simple passwords"""
+    
     email = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
-
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text="Choose any password you'd like."
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text="Enter the same password again for verification."
+    )
+    
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
-
+        fields = ["username", "email"]
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("This username is already taken.")
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("A user with this email address already exists.")
+        return email
+    
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        
+        if not password1 or not password2:
+            raise ValidationError("Please enter a password and confirm it.")
+        
+        if password1 != password2:
+            raise ValidationError("The two password fields didn't match.")
+        
+        return password2
+    
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
+        user.set_password(self.cleaned_data["password1"])
         
         if commit:
             user.save()
         return user
+
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
