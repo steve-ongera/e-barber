@@ -3,6 +3,12 @@
 
 {% block title %}{{ service.name }} - Barber Shop{% endblock %}
 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/service_detail.css' %}">
+{% endblock %}
+
+
 {% block content %}
 <div class="container">
     <nav aria-label="breadcrumb">

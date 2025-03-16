@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Book Appointment - {{ service.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/book_appointment.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container">
