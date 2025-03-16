@@ -35,13 +35,29 @@
             <div class="d-flex mb-4">
                 <div class="me-4">
                     <h5>Price</h5>
-                    <p class="fs-4">KSH{{ service.price }}</p>
+                    <p class="fs-4">ksh {{ service.price }}</p>
                 </div>
                 <div>
                     <h5>Duration</h5>
                     <p class="fs-4">{{ service.duration }} minutes</p>
                 </div>
             </div>
+
+            {% if sub_services %}
+            <div class="mb-4">
+                <h5 class="mb-3">Bonus Treatments</h5>
+                <ul class="list-unstyled">
+                    {% for sub in sub_services %}
+                        <li class="mb-2 d-flex align-items-center">
+                            <span class="text-warning me-2" style="font-size: 1rem;">&#9733;</span> 
+                            <span class="fs-6">{{ sub.name|safe }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+
             
             <div class="mb-4">
                 <h5>Category</h5>

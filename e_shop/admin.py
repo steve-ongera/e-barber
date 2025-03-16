@@ -19,11 +19,22 @@ class ServiceCategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+from django.contrib import admin
+from .models import Service, SubService
+
+class SubServiceInline(admin.TabularInline):  # You can also use StackedInline if you prefer
+    model = SubService
+    extra = 1  # Number of empty forms shown
+
+
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price', 'duration', 'is_active')
     search_fields = ('name', 'category__name')
     list_filter = ('category', 'is_active')
+    inlines = [SubServiceInline]  # Add this line to include SubServices
+
+
 
 @admin.register(BusinessHours)
 class BusinessHoursAdmin(admin.ModelAdmin):

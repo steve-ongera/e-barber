@@ -53,6 +53,18 @@ class Service(models.Model):
     class Meta:
         verbose_name_plural = "Services"
 
+        
+from ckeditor.fields import RichTextField
+
+class SubService(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='sub_services')
+    name = RichTextField()  # 🔥 Rich text field!
+
+    def __str__(self):
+        return self.name
+
+
+
 class BusinessHours(models.Model):
     DAYS_OF_WEEK = [
         (0, 'Monday'),

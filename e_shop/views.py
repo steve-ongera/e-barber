@@ -86,7 +86,12 @@ def service_list(request):
 def service_detail(request, slug):
     """View details of a specific service"""
     service = get_object_or_404(Service, slug=slug)
-    return render(request, 'service_detail.html', {'service': service})
+    sub_services = service.sub_services.all()  # Fetch related sub-services
+    return render(request, 'service_detail.html', {
+        'service': service,
+        'sub_services': sub_services,
+    })
+
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
