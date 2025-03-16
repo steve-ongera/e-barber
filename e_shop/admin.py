@@ -1,11 +1,18 @@
 from django.contrib import admin
-from .models import Barber, ServiceCategory, Service, BusinessHours, Appointment, UserProfile, Review
+from .models import Barber, ServiceCategory, Service, BusinessHours, Appointment,  Review , Profile
 
 @admin.register(Barber)
 class BarberAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone_number', 'years_of_experience')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'phone_number')
     list_filter = ('years_of_experience',)
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone', 'address','city')
+    search_fields = ('user__username', 'phone')
+
+
 
 @admin.register(ServiceCategory)
 class ServiceCategoryAdmin(admin.ModelAdmin):
@@ -29,10 +36,7 @@ class AppointmentAdmin(admin.ModelAdmin):
     search_fields = ('customer__username', 'barber__user__username', 'service__name')
     list_filter = ('status', 'date')
 
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone_number')
-    search_fields = ('user__username', 'phone_number')
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

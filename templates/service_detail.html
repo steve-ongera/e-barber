@@ -15,6 +15,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'service_list' %}">Services</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'category_detail' service.category.slug %}">{{ service.category.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ service.name }}</li>
         </ol>
     </nav>

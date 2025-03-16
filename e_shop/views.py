@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Service, ServiceCategory, Barber, Appointment, BusinessHours
-from .forms import AppointmentForm, UserProfileForm
+from .forms import AppointmentForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -229,3 +229,79 @@ def get_available_slots(request):
             return JsonResponse({'error': str(e)}, status=400)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from .models import Profile
+from .forms import ProfileForm, AddressForm  # You can create these forms
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import render, redirect
+from .models import Profile, Appointment
+from .forms import ProfileForm, AddressForm  # Make sure these forms exist and are correct
+
+@login_required
+def profile_view(request):
+    user = request.user
+
+    # Get or create Profile if not existing
+    try:
+        profile = user.profile
+    except ObjectDoesNotExist:
+        profile = Profile.objects.create(user=user)
+
+    # Fetch user's appointments
+    bookings = Appointment.objects.filter(customer=user).order_by('-date')
+
+    # Initialize forms
+    profile_form = ProfileForm(instance=profile)
+    address_form = AddressForm(instance=profile)
+    password_form = PasswordChangeForm(user=user)
+
+    if request.method == 'POST':
+        if 'save_profile' in request.POST:
+            profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                # Update user's name fields
+                user.first_name = request.POST.get('first_name', user.first_name)
+                user.last_name = request.POST.get('last_name', user.last_name)
+                user.save()
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('profile')
+
+        elif 'save_address' in request.POST:
+            address_form = AddressForm(request.POST, instance=profile)
+            if address_form.is_valid():
+                address_form.save()
+                messages.success(request, 'Address updated successfully.')
+                return redirect('profile')
+
+        elif 'change_password' in request.POST:
+            password_form = PasswordChangeForm(user=user, data=request.POST)
+            if password_form.is_valid():
+                password_form.save()
+                update_session_auth_hash(request, password_form.user)
+                messages.success(request, 'Password updated successfully.')
+                return redirect('profile')
+            else:
+                messages.error(request, 'Please correct the error below.')
+
+    context = {
+        'user': user,
+        'profile': profile,
+        'bookings': bookings,
+        'profile_form': profile_form,
+        'address_form': address_form,
+        'password_form': password_form,
+    }
+    return render(request, 'profile.html', context)

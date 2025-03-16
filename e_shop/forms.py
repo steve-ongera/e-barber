@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.models import User
-from .models import Appointment, UserProfile, Review
+from .models import *
 from datetime import datetime, date, timedelta
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
@@ -59,10 +59,7 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ('phone_number', 'profile_picture')
+
 
     
 class AppointmentForm(forms.ModelForm):
@@ -100,3 +97,14 @@ class ReviewForm(forms.ModelForm):
         widgets = {
             'comment': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Share your experience'})
         }
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['phone']  # Add other fields if necessary
+
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['address', 'city', 'phone']  # Adjust fields as per model

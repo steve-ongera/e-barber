@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile - Service Portal{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>My Profile</h1>
+        <p>Welcome back, {{ user.get_full_name|default:user.username }}</p>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-sidebar">
+            <div class="profile-avatar">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="Profile Picture">
+                {% else %}
+                   <img src="{% static 'images/user.png'%}" alt="Profile Picture">
+                {% endif %}
+            </div>
+            
+            <div class="profile-menu">
+                <ul>
+                    <li class="active"><a href="#profile-info">Personal Information</a></li>
+                    <li><a href="#bookings">{{ user.email}}</a></li>
+                    <li><a href="#address">My Address</a></li>
+                    <li><a href="#password">Change Password</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="profile-main">
+            <!-- Personal Information Section -->
+            <section id="profile-info" class="profile-section">
+                <h2>Personal Information</h2>
+                <form method="POST" enctype="multipart/form-data" class="profile-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}">
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}">
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" class="form-control" name="phone" value="{{ user.profile.phone|default:'' }}">
+                    </div>
+                
+                    <button type="submit" name="save_profile" class="btn btn-primary">Save Changes</button>
+                </form>
+                
+            </section>
+            
+            <!-- Bookings Section -->
+            <section id="bookings" class="profile-section">
+                <h2>My Bookings</h2>
+                
+                {% if bookings %}
+                <div class="bookings-list">
+                    {% for booking in bookings %}
+                    <div class="booking-item">
+                        <div class="booking-service">
+                            <h3>{{ booking.service.name }}</h3>
+                            <p>{{ booking.service.category.name }}</p>
+                        </div>
+                        <div class="booking-details">
+                            <span class="booking-date">{{ booking.date|date:"M d, Y" }} at {{ booking.time }}</span>
+                            <span class="booking-price">KSh {{ booking.service.price }}</span>
+                            <span class="booking-status {{ booking.status|lower }}">{{ booking.status }}</span>
+                        </div>
+                        <div class="booking-actions">
+                            <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                            {% if booking.status == 'Upcoming' %}
+                            <a href="#" class="btn btn-sm btn-outline-danger">Cancel</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>You don't have any bookings yet.</p>
+                    <a href="{% url 'services:category_list' %}" class="btn btn-primary">Browse Services</a>
+                </div>
+                {% endif %}
+            </section>
+            
+            
+            
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
