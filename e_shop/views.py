@@ -41,8 +41,8 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.success(request, "Logged out successfully!")
-    return redirect('login')
+    messages.error(request, "Logged out successfully!")
+    return redirect('home')
 
 # views.py
 from django.shortcuts import render, redirect
@@ -68,6 +68,14 @@ def signup(request):
     
     return render(request,  'registration/signup.html', {"form": form})
 
+def category_detail(request, slug):
+    """View showing services in a specific category"""
+    category = get_object_or_404(ServiceCategory, slug=slug)
+    services = Service.objects.filter(category=category, is_active=True)
+    return render(request, 'category_detail.html', {
+        'category': category,
+        'services': services
+    })
 
 
 def service_list(request):

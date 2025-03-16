@@ -12,5 +12,6 @@ urlpatterns = [
     path('appointments/', views.my_appointments, name='my_appointments'),
     path('appointments/<int:appointment_id>/', views.appointment_detail, name='appointment_detail'),
     path('api/available-slots/', views.get_available_slots, name='get_available_slots'),
+    path('category/<slug:slug>/', views.category_detail, name='category_detail'),
     
 ]

@@ -1,0 +1,156 @@
+/* static/css/style.css */
+
+/* Category Detail Page Styles */
+.category-header {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.category-header h1 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.category-description {
+    color: #666;
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.service-card {
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+}
+
+.service-card-inner {
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.service-image {
+    height: 180px;
+    overflow: hidden;
+}
+
+.service-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-image img {
+    transform: scale(1.05);
+}
+
+.service-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.service-title {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    color: #222;
+}
+
+.service-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.service-price {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.service-duration {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.service-description {
+    color: #555;
+    flex-grow: 1;
+    margin-bottom: 1rem;
+}
+
+.view-service-btn {
+    display: inline-block;
+    background-color: #0d6efd;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.view-service-btn:hover {
+    background-color: #0b5ed7;
+    color: white;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    color: #6c757d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .service-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .category-header {
+        padding: 1.5rem;
+    }
+    
+    .service-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Navbar Styles */
+.navbar-dark .navbar-nav .dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.navbar-dark .navbar-nav .dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.navbar-dark .navbar-nav .dropdown-item:active {
+    background-color: #0d6efd;
+}
