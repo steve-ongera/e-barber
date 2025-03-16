@@ -30,21 +30,26 @@
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <div class="input-group">
+                <div class="input-group" style="position: relative;">
                     <span class="input-icon">
+                        <!-- Lock Icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
                         </svg>
                     </span>
                     <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+            
+                    <!-- Eye Icon -->
+                    <span class="toggle-password" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i id="eyeIcon" class="bi bi-eye"></i>
+                    </span>
                 </div>
             </div>
             
+            
+            
             <div class="form-options">
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Remember me</label>
-                </div>
+                
                 <a href="#" class="forgot-password">Forgot password?</a>
             </div>
             
@@ -56,4 +61,7 @@
         </form>
     </div>
 </div>
+
+<script src="{% static 'js/toggle_eye.js' %}"></script>
+
 {% endblock %}

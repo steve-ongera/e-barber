@@ -48,39 +48,45 @@
             
             <div class="form-group">
                 <label for="password1">Password</label>
-                <div class="input-group">
+                <div class="input-group" style="position: relative;">
                     <span class="input-icon">
+                        <!-- Lock Icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
                         </svg>
                     </span>
                     <input type="password" id="password1" name="password1" class="form-control" placeholder="Create a password" required>
+                    <!-- Eye Icon -->
+                    <span class="toggle-password" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i id="eyeIcon1" class="bi bi-eye"></i>
+                    </span>
                 </div>
                 {% if form.password1.errors %}
                 <div class="error-message">{{ form.password1.errors }}</div>
                 {% endif %}
-                
             </div>
             
             <div class="form-group">
                 <label for="password2">Confirm Password</label>
-                <div class="input-group">
+                <div class="input-group" style="position: relative;">
                     <span class="input-icon">
+                        <!-- Lock Icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
                         </svg>
                     </span>
                     <input type="password" id="password2" name="password2" class="form-control" placeholder="Confirm your password" required>
+                    <!-- Eye Icon -->
+                    <span class="toggle-password" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i id="eyeIcon2" class="bi bi-eye"></i>
+                    </span>
                 </div>
                 {% if form.password2.errors %}
                 <div class="error-message">{{ form.password2.errors }}</div>
                 {% endif %}
             </div>
             
-            <div class="terms-policy">
-                <input type="checkbox" id="agree" name="agree" required>
-                <label for="agree">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
-            </div>
+            
             
             <button type="submit" class="login-btn">Register</button>
             
@@ -90,4 +96,6 @@
         </form>
     </div>
 </div>
+<script src="{% static 'js/register_toggle_eye.js' %}"></script>
+
 {% endblock %}
