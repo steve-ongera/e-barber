@@ -26,6 +26,9 @@ def home(request):
 
 
 
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.conf import settings
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -34,10 +37,22 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Logged in successfully!")
-            return redirect('home')
+            
+            # Get the 'next' parameter
+            next_url = request.POST.get('next')
+            
+            # Validate 'next' URL to prevent open redirects
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            else:
+                return redirect('home')  # Default redirect
+        
         else:
             messages.error(request, "Invalid username or password.")
-    return render(request, 'registration/login.html')
+    
+    next_url = request.GET.get('next', '')  # Pass 'next' to the template
+    return render(request, 'registration/login.html', {'next': next_url})
+
 
 def logout_view(request):
     logout(request)

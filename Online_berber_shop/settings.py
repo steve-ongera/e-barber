@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-jz=$)*vmpd(965*2e*!0(-r7tiw)olae&07j7r17#z9ha!wo^8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://d098-41-90-122-235.ngrok-free.app', '*']
 
 
 # Application definition
@@ -29,6 +29,11 @@ INSTALLED_APPS = [
     'e_shop',
     'ckeditor',
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://d74e-2c0f-6300-d09-fd00-bc8b-da52-468-224f.ngrok-free.app',  # WITH https://
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -90,6 +95,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGIN_URL = 'login'  # This matches the name in path('login/', views.login_view, name='login')
+LOGIN_REDIRECT_URL = 'home'  # Default redirect if no 'next' parameter is provided (optional)
 
 
 # Internationalization

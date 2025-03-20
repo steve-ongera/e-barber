@@ -80,7 +80,7 @@
                             <span class="booking-status {{ booking.status|lower }}">{{ booking.status }}</span>
                         </div>
                         <div class="booking-actions">
-                            <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                            <a href="{% url 'appointment_detail' booking.id %}" class="btn btn-sm btn-outline-primary">Details</a>
                             {% if booking.status == 'Upcoming' %}
                             <a href="#" class="btn btn-sm btn-outline-danger">Cancel</a>
                             {% endif %}
